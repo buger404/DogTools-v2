@@ -24,7 +24,7 @@ Public Sub Update()
     
     Page.Clear 'Çå¿Õ»­²¼
 
-    Page.Writes "breaker", GW / 2, 100, 32, argb(200, 255, 83, 57), align:=StringAlignmentCenter
+    Page.Writes "breaker", GW / 2, 100, 32, argb(255, 253, 78, 38), align:=StringAlignmentCenter
     Page.Writes "avoid something that won't be opened", GW / 2, 160, 20, argb(120, 0, 0, 0), align:=StringAlignmentCenter
 
     For I = PI * 5 + 1 To PI * 5 + 5
@@ -35,37 +35,48 @@ Public Sub Update()
         With Breaks.List(I)
             Page.Writes .Title & " | " & .ClassName & " | " & .ImName, 50, 200 + (I - PI * 5) * 45, 20, argb(200, 0, 0, 0)
         End With
-        Page.Writes "Delete", GW - 50, 200 + (I - PI * 5) * 45, 20, argb(180, 255, 83, 57), align:=StringAlignmentFar
-        If CheckMouse(GW - 50 - 100, 200 + (I - PI * 5) * 45, 100, 40) = mMouseDown Then
-            Mouse.button = 0: Mouse.State = 0
-            For S = I To UBound(Breaks.List) - 1
-                Breaks.List(S) = Breaks.List(S + 1)
-            Next
-            ReDim Preserve Breaks.List(UBound(Breaks.List) - 1)
-            Open DataPath & "\break.db" For Binary As #1
-            Put #1, , Breaks
-            Close #1
+        Page.Writes "Delete", GW - 50, 200 + (I - PI * 5) * 45, 20, argb(230, 253, 78, 38), align:=StringAlignmentFar
+        If CheckMouse(GW - 50 - 100, 200 + (I - PI * 5) * 45, 100, 40) = mMouseUp Then
+            If ECore.SimpleMsg("Delete: " & Breaks.List(I).Title & " | " & Breaks.List(I).ClassName & " | " & Breaks.List(I).ImName, "Breaker", StrArray("Delete", "Cancel"), Radius:=20) = 0 Then
+                Mouse.button = 0: Mouse.State = 0
+                For S = I To UBound(Breaks.List) - 1
+                    Breaks.List(S) = Breaks.List(S + 1)
+                Next
+                ReDim Preserve Breaks.List(UBound(Breaks.List) - 1)
+                Open DataPath & "\break.db" For Binary As #1
+                Put #1, , Breaks
+                Close #1
+                TrayBalloon AppWindow, "A rule deleted just now.", "BREAKER", NIIF_WARNING
+            End If
         End If
     Next
     
+    Dim min As Long, max As Long
+    min = 0
+    max = Int(UBound(Breaks.List) / 6)
+    If PI > max Then PI = max
+    
     Page.Writes "< Prev", 50, 485, 20, argb(180, 255, 83, 57)
-    If CheckMouse(50, 480, 75, 35) = mMouseDown Then
+    If CheckMouse(50, 480, 75, 35) = mMouseUp And PI > min Then
         Mouse.button = 0: Mouse.State = 0
         PI = PI - 1
     End If
+    Page.Writes PI + 1 & "/" & max + 1, GW / 2, 485, 20, argb(180, 255, 83, 57), align:=StringAlignmentCenter
     Page.Writes "Next >", GW - 50, 485, 20, argb(180, 255, 83, 57), align:=StringAlignmentFar
-    If CheckMouse(GW - 50 - 75, 480, 75, 35) = mMouseDown Then
+    If CheckMouse(GW - 50 - 75, 480, 75, 35) = mMouseUp And PI < max Then
         Mouse.button = 0: Mouse.State = 0
         PI = PI + 1
     End If
     
     Page.Paint 0, 0, GH - 149, GW, 150, argb(255, 242, 242, 242)
-    If CheckMouse2 = mMouseDown Then
-        BreakTime = GetTickCount
+    If CheckMouse2 = mMouseUp Then
+        If ECore.SimpleMsg("Are you wanna to avoid a new window?", "Breaker", StrArray("Yes", "No"), Radius:=20) = 0 Then
+            BreakTime = GetTickCount
+        End If
     End If
     Page.Writes IIf(BreakTime <> 0, Int(6 - (GetTickCount - BreakTime) / 1000) & "s left ...", "TARGET"), GW / 2, GH - 100, 24, argb(255, 0, 0, 0), align:=StringAlignmentCenter
 
-    If CheckMouse(0, 0, GW, GH) = mMouseDown And Mouse.button = 2 Then
+    If CheckMouse(0, 0, GW, GH) = mMouseUp And Mouse.button = 2 Then
         Mouse.button = 0: Mouse.State = 0
         ECore.NewTransform transDarkReturn, 500, "MainPage"
     End If

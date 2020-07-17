@@ -12,6 +12,18 @@ Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Dim Title As String, Class As String, PID As Long, img As String, Hwnd As Long, time As Long
+Public Sub ConfirmRule()
+    ReDim Preserve Breaks.List(UBound(Breaks.List) + 1)
+    With Breaks.List(UBound(Breaks.List))
+        .Title = BRT
+        .ClassName = BRC
+        .ImName = BRI
+    End With
+    Open DataPath & "\break.db" For Binary As #1
+    Put #1, , Breaks
+    Close #1
+    TrayBalloon AppWindow, "New rule added.", "BREAKER", NIIF_INFO
+End Sub
 Public Sub Update()
     Dim Ti As String * 255, Hw As Long, PI As Long
     Dim Title2 As String, ImN() As String, ImName2 As String, ImName As String
@@ -23,16 +35,12 @@ Public Sub Update()
     
     If BreakTime <> 0 And GetTickCount - BreakTime >= 5000 Then
         BreakTime = 0
+        BRT = UnSpace(Title)
+        BRC = UnSpace(Class)
+        BRI = UnSpace(img)
+        ECore.NewTransform , , "RulePage"
         AppWindow.SetFocus
-        ReDim Preserve Breaks.List(UBound(Breaks.List) + 1)
-        With Breaks.List(UBound(Breaks.List))
-            .Title = InputBox("Title", , UnSpace(Title))
-            .ClassName = InputBox("ClassName", , UnSpace(Class))
-            .ImName = InputBox("ImageName", , UnSpace(img))
-        End With
-        Open DataPath & "\break.db" For Binary As #1
-        Put #1, , Breaks
-        Close #1
+        ShowWindow AppWindow.Hwnd, SW_SHOW
     End If
     
     If Hwnd = Hw Then
@@ -75,6 +83,7 @@ Public Sub Update()
                 SendMessageA Hwnd, WM_CLOSE, 0, 0 '必杀技！
                 Log "Breaker", "成功阻止：" & .Title & " | " & .ClassName & " | " & .ImName
                 Log "Monitor", "于是该窗口被本工具阻断！"
+                TrayBalloon AppWindow, "Break a target window, unlock for details.", "BREAKER", NIIF_INFO
             End If
         End With
     Next

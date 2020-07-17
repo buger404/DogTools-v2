@@ -6,7 +6,7 @@ BEGIN
   DataSourceBehavior  = 0  'vbNone
   MTSTransactionMode  = 0  'NotAnMTSObject
 END
-Attribute VB_Name = "MainPage"
+Attribute VB_Name = "RulePage"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
@@ -21,35 +21,29 @@ Attribute VB_Exposed = False
 Public Sub Update()
     '应用界面每一帧刷新会调用的方法（页面绘制代码请放在此处）
     
-    Page.Clear argb(255, 255, 255, 255) '清空画布
+    Page.Clear '清空画布
 
     '================================================================
     '   示例：绘制文字
     '   Page.Writes "我是文字", 20,20, Color:=argb(255, 0, 0, 0)
     '================================================================
+    Page.Paint 0, 0, 120, GW + 1, GH - 120 + 1, argb(255, 242, 242, 242)
     
-    Dim pro As Single
-    For I = 1 To 4
-        pro = Cubic(((GetTickCount + I * 500) Mod 3000) / 3000, 0, 1, 1, 1)
-        Page.Paint 1, GW / 2, GH / 2 - 50, pro * 500, pro * 500, argb(150 - 150 * pro, 195, 157, 147), pos:=posOnCenter
-    Next
-    Page.DrawImage "Icon.png", GW / 2, GH / 2 - 50, alpha:=1, pos:=posOnCenter
+    Page.Writes "Rule arrangement", 40, 40, 28, argb(255, 255, 83, 57)
     
-    Page.Writes "WELCOME " & user, GW / 2 + 1, GH / 2 + 80, 28, argb(255, 0, 0, 0), align:=StringAlignmentCenter, style:=FontStyleBold
-    
-    If ESave.GetData("setuptime") = "" Then ESave.PutData "setuptime", Now
-    
-    Dim otime As Date
-    otime = Now - CDate(ESave.GetData("setuptime"))
-    
-    Page.Writes "Dog Tools -v2 has get along with you " & year(otime) Mod 1899 & "y" & Month(otime) Mod 12 & "m" & Day(otime) Mod 30 & "d" & Hour(otime) & "h" & Minute(otime) & "min" & Second(otime) & "s", GW / 2 + 1, GH / 2 + 240, 20, argb(180, 0, 0, 0), align:=StringAlignmentCenter
-    
-    If CheckMouse(0, 0, GW, GH) = mMouseUp And Mouse.button = 1 Then
-        Mouse.button = 0: Mouse.State = 0
-        ECore.NewTransform transDarkTo, 500, "MoEdPage"
+    Page.Writes "Title", 40, 150, 20, argb(255, 16, 16, 16)
+    Page.ShowEdit BRT, 0, 150, 150, 600, 30, argb(255, 64, 64, 64), argb(255, 232, 232, 232), argb(255, 232, 232, 235), argb(255, 255, 83, 57), size:=20
+
+    Page.Writes "Class", 40, 200, 20, argb(255, 16, 16, 16)
+    Page.ShowEdit BRC, 0, 150, 200, 600, 30, argb(255, 64, 64, 64), argb(255, 232, 232, 232), argb(255, 232, 232, 235), argb(255, 255, 83, 57), size:=20
+
+    Page.Writes "Image", 40, 250, 20, argb(255, 16, 16, 16)
+    Page.ShowEdit BRI, 0, 150, 250, 600, 30, argb(255, 64, 64, 64), argb(255, 232, 232, 232), argb(255, 232, 232, 235), argb(255, 255, 83, 57), size:=20
+
+    If Page.ShowColorButton(2, GW / 2 - 70, GH - 100, 140, 40, "confirm", argb(255, 255, 255, 255), argb(255, 253, 78, 38), argb(255, 253, 78, 38), 999, size:=20) = mMouseUp Then
+        Moni.ConfirmRule
+        ECore.NewTransform , , "MoEdPage"
     End If
-    
-    Page.Writes "this program made by CZY copyright 2020- all rights reserved", GW / 2 + 1, GH / 2 + 290, 20, argb(160, 0, 0, 0), align:=StringAlignmentCenter
 End Sub
 Public Sub Wheel(Direction As Integer, Depth As Single)
     '鼠标滚轮事件
@@ -78,7 +72,7 @@ Private Sub Class_Initialize()
     Set Page = New GPage  '创建页面绘制器
     Page.Create Me  '将绘制器与控制器绑定
     Page.Res.NewImages App.path & "\assets"  '导入资源
-    ECore.Add Page, "MainPage"  '创建页面
+    ECore.Add Page, "RulePage"  '创建页面
     
     '===============================================
     '   如果需要添加动画，请放置在此处

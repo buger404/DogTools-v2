@@ -14,6 +14,7 @@ Public Type BreakList
 End Type
 Public Breaks As BreakList
 Public BreakTime As Long
+Public BRI As String, BRT As String, BRC As String
 Sub Log(ByVal func As String, ByVal Text As String)
     On Error Resume Next
     
@@ -77,3 +78,30 @@ Public Function UnSpace(ByVal Str As String) As String
         UnSpace = Str
     End If
 End Function
+Sub Main()
+    If App.LogMode = 0 Then GoTo SkipRoot '调试模式下禁用提权
+    'GoTo SkipRoot
+    
+    If Trim(Command$) = "-root" Then
+        'ShellExecuteA 0, "open", """" & App.path & "\ps\psexec64.exe""", "-i -d -s " & """" & App.path & "\" & App.EXEName & ".exe"" ""-rootok""", "", SW_SHOW      '提权到Admin
+        'Log "Tools", "取得系统权限"
+        'End
+    ElseIf Command$ = "" Then
+        ShellExecuteA 0, "runas", """" & App.path & "\" & App.EXEName & ".exe""", "-root", "", SW_SHOW      '提权到Admin
+        Log "Tools", "取得管理员权限"
+        End
+    End If
+    
+SkipRoot:
+    
+    If Dir(DataPath & "\Logs\", vbDirectory) = "" Then CreateFolder DataPath & "\Logs\"
+    If Dir(DataPath & "\Logs\Breaker\", vbDirectory) = "" Then CreateFolder DataPath & "\Logs\Breaker\"
+    If Dir(DataPath & "\Logs\Monitor\", vbDirectory) = "" Then CreateFolder DataPath & "\Logs\Monitor\"
+    If Dir(DataPath & "\Logs\Tools\", vbDirectory) = "" Then CreateFolder DataPath & "\Logs\Tools\"
+    If Dir(DataPath & "\Monitor\", vbDirectory) = "" Then CreateFolder DataPath & "\Monitor\"
+    If Dir(DataPath & "\Logs\Keyboard\", vbDirectory) = "" Then CreateFolder DataPath & "\Logs\Keyboard\"
+    
+    AppWindow.Show
+    
+    Log "Tools", "成功启动"
+End Sub

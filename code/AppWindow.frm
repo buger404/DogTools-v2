@@ -3,7 +3,7 @@ Begin VB.Form AppWindow
    Appearance      =   0  'Flat
    BackColor       =   &H80000005&
    BorderStyle     =   1  'Fixed Single
-   Caption         =   "Dog Tools -v2 Made by CZY"
+   Caption         =   "Dog Tools -v2 (0.2.1) Made by CZY"
    ClientHeight    =   6672
    ClientLeft      =   48
    ClientTop       =   396
@@ -15,25 +15,24 @@ Begin VB.Form AppWindow
    ScaleMode       =   3  'Pixel
    ScaleWidth      =   805
    StartUpPosition =   2  '屏幕中心
+   Begin VB.Timer HideTimer 
+      Enabled         =   0   'False
+      Interval        =   100
+      Left            =   9048
+      Top             =   1248
+   End
+   Begin VB.DriveListBox Drive 
+      Height          =   336
+      Left            =   624
+      TabIndex        =   0
+      Top             =   468
+      Visible         =   0   'False
+      Width           =   480
+   End
    Begin VB.Timer MoniTimer 
       Interval        =   100
       Left            =   9048
       Top             =   780
-   End
-   Begin VB.PictureBox WebCam 
-      Appearance      =   0  'Flat
-      BackColor       =   &H80000005&
-      BorderStyle     =   0  'None
-      ForeColor       =   &H80000008&
-      Height          =   324
-      Left            =   0
-      ScaleHeight     =   27
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   27
-      TabIndex        =   0
-      Top             =   0
-      Visible         =   0   'False
-      Width           =   324
    End
    Begin VB.Timer DrawTimer 
       Enabled         =   0   'False
@@ -57,6 +56,8 @@ Attribute VB_Exposed = False
     Dim AppPage As AppPage
     Dim MainPage As MainPage
     Dim MoEdPage As MoEdPage
+    Dim RulePage As RulePage
+    Dim LockTip As Boolean
 '==================================================
 
 Private Sub Form_Load()
@@ -66,9 +67,7 @@ Private Sub Form_Load()
     CreateFolder "C:\DogTools\Logs\Breaker\"
     If App.LogMode <> 0 Then StartKeyboard
     
-    StartEmerald Me.Hwnd, 1200, 700  '初始化Emerald（在此处可以修改窗口大小）
-    WebCam.Move 0, 0, Me.ScaleWidth, Me.ScaleHeight
-    Call StartWebCam(WebCam)
+    StartEmerald Me.Hwnd, 1200, 700, False  '初始化Emerald（在此处可以修改窗口大小）
     
     Set EF = New GFont
     EF.AddFont App.path & "\font.ttf"
@@ -86,7 +85,6 @@ Private Sub Form_Load()
     'MusicList.Create App.path & "\music"
 
     '开始显示界面
-    Me.Show
     DrawTimer.Enabled = True
     
     '在此处实例化你的页面控制器
@@ -97,32 +95,35 @@ Private Sub Form_Load()
         Set AppPage = New AppPage
         Set MainPage = New MainPage
         Set MoEdPage = New MoEdPage
+        Set RulePage = New RulePage
     '=============================================
-
-    '设置活动页面（在此处设置则为你的启动页面）
-    EC.ActivePage = "AppPage"
     
     TrayAddIcon Me, "Dog Tools -v2", NIIF_NONE
     Me.Hide
+    ShowWindow Me.Hwnd, SW_HIDE
+    
+    HideTimer.Enabled = True
 End Sub
 
 Private Sub Form_Unload(Cancel As Integer)
     Cancel = 1
+    If LockTip Then Exit Sub
+    LockTip = True
     If ECore.ActivePage = "AppPage" Then
         Log "Tools", "密码校验失败"
         TrayBalloon AppWindow, "I won't quit unless you login your account.", "STILL HERE", NIIF_ERROR
         Me.Hide
     Else
-        If MsgBox("Lock your account anyway?", 48 + vbYesNo) = vbYes Then
+        If ECore.SimpleMsg("Lock your account anyway?", "Login-out", StrArray("Lock", "Cancel"), Radius:=20) = 0 Then
             Log "Tools", user & "锁定了工具。"
             TrayBalloon AppWindow, "You log-out your account successfully.", "ACCOUNT LOG-OUT", NIIF_INFO
             user = "": Me.Hide
         End If
     End If
+    LockTip = False
     Exit Sub
     If App.LogMode <> 0 Then EndKeyboard
     TrayRemoveIcon
-    Call StopWebCam
     '终止绘制
     DrawTimer.Enabled = False
     '释放Emerald资源
@@ -136,11 +137,11 @@ End Sub
 
 '============================================================
 ' 事件映射
-Private Sub Form_MouseDown(button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub Form_MouseDown(button As Integer, Shift As Integer, X As Single, y As Single)
     '发送鼠标信息
-    UpdateMouse X, Y, 1, button
+    UpdateMouse X, y, 1, button
 End Sub
-Private Sub Form_MouseMove(button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub Form_MouseMove(button As Integer, Shift As Integer, X As Single, y As Single)
     '发送鼠标信息
     If Me.Visible = False Then
         If button = 2 Then
@@ -152,18 +153,23 @@ Private Sub Form_MouseMove(button As Integer, Shift As Integer, X As Single, Y A
     End If
 
     If Mouse.State = 0 Then
-        UpdateMouse X, Y, 0, button
+        UpdateMouse X, y, 0, button
     Else
-        Mouse.X = X: Mouse.Y = Y
+        Mouse.X = X: Mouse.y = y
     End If
 End Sub
-Private Sub Form_MouseUp(button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub Form_MouseUp(button As Integer, Shift As Integer, X As Single, y As Single)
     '发送鼠标信息
-    UpdateMouse X, Y, 2, button
+    UpdateMouse X, y, 2, button
 End Sub
 Private Sub Form_KeyPress(KeyAscii As Integer)
     '发送字符输入
     If TextHandle <> 0 Then WaitChr = WaitChr & Chr(KeyAscii)
+End Sub
+
+Private Sub HideTimer_Timer()
+    Me.Hide
+    HideTimer.Enabled = False
 End Sub
 
 Private Sub MoniTimer_Timer()
