@@ -28,8 +28,11 @@ Attribute VB_Exposed = False
     Dim Faces() As String, Score As Long
     Dim RefreshTime As Long, LastDC As Long, PassTime As Long
     Dim Key As SignFile
+    Dim StateText As String
 '======================================
 Public Function VerifyUSB(Dr As String) As Boolean
+    On Error GoTo VerifyFault
+    
     Dim Name As String, size As Long, Serial As Long, MaxComp As Long, FileFlags As Long, filename As String
     Name = Space(255): filename = Space(255): size = 255
 
@@ -37,27 +40,38 @@ Public Function VerifyUSB(Dr As String) As Boolean
     DriveS = Dr
     GetVolumeInformationA DriveS, Name, size, Serial, MaxComp, FileFlags, filename, size
 
+    If Dir(DriveS & "dogtools-v2-key.dt2k") = "" Then Exit Function
+
     Open DriveS & "dogtools-v2-key.dt2k" For Binary As #1
     Get #1, , Key
     Close #1
+    
+    StateText = "Checking for the availability of the license..."
     
     Dim MD5 As New MD5, con As Boolean
 
     con = Key.KeyString = MD5.Md5_String_Calc("copied with " & Key.Owner & " by " & BMEA(size, Key.Permission) & "&&" & BMEA(Serial, Key.Permission) & "&&" & BMEA(MaxComp, Key.Permission) & "&&" & BMEA(FileFlags, Key.Permission) & "&&" & BMEA(filename, Key.Permission))
     If Not con Then Exit Function
     
+    StateText = "Verifying " & Key.Owner & "'s signature..."
+    
     Dim temp As String, TX As Long
     For I = 1 To UBound(Key.SignDots)
+        StateText = "Caculating " & Key.Owner & "'s signature(" & Round(I / UBound(Key.SignDots) * 100) & "%)..."
         TX = Sqr(Key.SignDots(I) / 500)
         temp = temp & BMEA(Key.SignDots(I), Key.KeyString)
         If Len(temp) > 64 Then temp = MD5.Md5_String_Calc(temp)
-        ECore.Display
+        If I Mod 10 = 0 Then ECore.Display
     Next
     
+    StateText = "Verifying " & Key.Owner & "'s signature, issued by " & Key.Permission & "..."
     con = Key.SignKey = MD5.Md5_String_Calc(Key.Owner & " signed " & temp & " (" & UBound(Key.SignDots) & ")")
-    If Not con Then Exit Function
+    If Not con Then StateText = "Failed to verify the signature!": Exit Function
     
     VerifyUSB = True
+    
+VerifyFault:
+    If Err.Number <> 0 Then StateText = "Failed to load the license.": Err.Clear: VerifyUSB = False
 End Function
 Public Sub Update()
     '应用界面每一帧刷新会调用的方法（页面绘制代码请放在此处）
@@ -93,6 +107,9 @@ Public Sub Update()
     If pro = 0 Then Page.DrawImage "USB.png", GW / 2, GH / 2 - 60 + pro * GH, alpha:=1 - pro, pos:=posOnCenter
     If pro = 0 Then Page.ShowLoading GW / 2 - 30 - pro * 100, GH / 2 + 160, 60, 60, 8, argb(255, 0, 0, 0), argb(160, 0, 0, 0), argb(80, 0, 0, 0)
 
+    Page.Writes StateText, GW / 2, GH - 90, 24, argb(255, 0, 0, 0), align:=StringAlignmentCenter
+    
+
     If GetTickCount - PassTime >= 2000 And PassTime <> 0 Then
         Log "Tools", user & "登陆了工具。"
         Scan = "": PassTime = 0: Working = False
@@ -110,6 +127,7 @@ Public Sub Enter()
     '页面进入事件
     ScanTime = GetTickCount
     PassTime = 0
+    StateText = "Searching for available USB drive with the key..."
 End Sub
 Public Sub Leave()
     '页面离开事件

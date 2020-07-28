@@ -111,12 +111,12 @@ Private Sub Form_Unload(Cancel As Integer)
     LockTip = True
     If ECore.ActivePage = "AppPage" Then
         Log "Tools", "密码校验失败"
-        TrayBalloon AppWindow, "I won't quit unless you login your account.", "STILL HERE", NIIF_ERROR
+        TrayBalloon AppWindow, "I won't quit unless you login your account.", "STILL HERE", NIIF_ICON_MASK
         Me.Hide
     Else
         If ECore.SimpleMsg("Lock your account anyway?", "Login-out", StrArray("Lock", "Cancel"), Radius:=20) = 0 Then
             Log "Tools", user & "锁定了工具。"
-            TrayBalloon AppWindow, "You log-out your account successfully.", "ACCOUNT LOG-OUT", NIIF_INFO
+            TrayBalloon AppWindow, "You log-out your account successfully.", "ACCOUNT LOG-OUT", NIIF_ICON_MASK
             user = "": Me.Hide
         End If
     End If

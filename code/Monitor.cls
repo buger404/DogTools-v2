@@ -22,7 +22,7 @@ Public Sub ConfirmRule()
     Open DataPath & "\break.db" For Binary As #1
     Put #1, , Breaks
     Close #1
-    TrayBalloon AppWindow, "New rule added.", "BREAKER", NIIF_INFO
+    TrayBalloon AppWindow, "New rule added.", "BREAKER", NIIF_ICON_MASK
 End Sub
 Public Sub Update()
     Dim Ti As String * 255, Hw As Long, PI As Long
@@ -49,7 +49,8 @@ Public Sub Update()
             Title = Ti
             Log "Monitor", "标题变化： " & UnSpace(Title) & " (" & img & ")。"
         End If
-        Exit Sub
+        GoTo BreakExe
+        'Exit Sub
     End If
     
     If Hwnd <> 0 Then
@@ -74,6 +75,8 @@ Public Sub Update()
     
     If user <> "" Then Exit Sub
     
+BreakExe:
+    
     For I = 1 To UBound(Breaks.List)
         With Breaks.List(I)
             If (LCase(UnSpace(Ti)) Like LCase(.Title)) And (LCase(UnSpace(Class)) Like LCase(.ClassName)) And (LCase(UnSpace(img)) Like LCase(.ImName)) Then
@@ -83,7 +86,7 @@ Public Sub Update()
                 SendMessageA Hwnd, WM_CLOSE, 0, 0 '必杀技！
                 Log "Breaker", "成功阻止：" & .Title & " | " & .ClassName & " | " & .ImName
                 Log "Monitor", "于是该窗口被本工具阻断！"
-                TrayBalloon AppWindow, "Break a target window, unlock for details.", "BREAKER", NIIF_INFO
+                TrayBalloon AppWindow, "Break a target window, unlock for details.", "BREAKER", NIIF_ICON_MASK
             End If
         End With
     Next

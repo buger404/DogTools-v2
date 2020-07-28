@@ -46,7 +46,7 @@ Public Sub Update()
                 Open DataPath & "\break.db" For Binary As #1
                 Put #1, , Breaks
                 Close #1
-                TrayBalloon AppWindow, "A rule deleted just now.", "BREAKER", NIIF_WARNING
+                TrayBalloon AppWindow, "A rule deleted just now.", "BREAKER", NIIF_ICON_MASK
             End If
         End If
     Next

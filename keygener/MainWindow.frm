@@ -45,7 +45,7 @@ Begin VB.Form MainWindow
       Height          =   360
       Left            =   2028
       TabIndex        =   3
-      Text            =   "Chen Zhiyan"
+      Text            =   "YOUR NAME"
       Top             =   1560
       Width           =   4536
    End
@@ -155,40 +155,40 @@ Private Sub Btn_Click()
     LogW "设备特征：" & Size & "," & Serial & "," & MaxComp & "," & FileFlags & "," & FileName
     LogW ""
     
-    Dim key As SignFile
-    key.Permission = "Buger404(" & BMEA_Engine.GetBMKey & ")"
-    LogW "授权信息：" & key.Permission
+    Dim Key As SignFile
+    Key.Permission = "Buger404(" & BMEA_Engine.GetBMKey & ")"
+    LogW "授权信息：" & Key.Permission
     
-    key.GenerateTime = Now
-    LogW "授权日期：" & key.GenerateTime
+    Key.GenerateTime = Now
+    LogW "授权日期：" & Key.GenerateTime
     
-    key.Owner = Sign.Text
-    LogW "密钥持有者：" & key.Owner
+    Key.Owner = Sign.Text
+    LogW "密钥持有者：" & Key.Owner
     
     Dim md5 As New md5
 
     LogW "转写设备特征..."
-    key.KeyString = md5.Md5_String_Calc("copied with " & key.Owner & " by " & BMEA(Size, key.Permission) & "&&" & BMEA(Serial, key.Permission) & "&&" & BMEA(MaxComp, key.Permission) & "&&" & BMEA(FileFlags, key.Permission) & "&&" & BMEA(FileName, key.Permission))
-    LogW "成功：" & key.KeyString
+    Key.KeyString = md5.Md5_String_Calc("copied with " & Key.Owner & " by " & BMEA(Size, Key.Permission) & "&&" & BMEA(Serial, Key.Permission) & "&&" & BMEA(MaxComp, Key.Permission) & "&&" & BMEA(FileFlags, Key.Permission) & "&&" & BMEA(FileName, Key.Permission))
+    LogW "成功：" & Key.KeyString
     
     LogW "转写手写签名(总计" & UBound(Dots) & "个顶点)..."
-    ReDim key.SignDots(UBound(Dots))
+    ReDim Key.SignDots(UBound(Dots))
     
     For I = 1 To UBound(Dots)
-        key.SignDots(I) = Dots(I)
-        If I Mod 30 = 0 Then LogW "正在转写签名的第" & I & "个顶点：" & Dots(I) & "(总计" & UBound(Dots) & "个顶点)..."
-        key.SignKey = key.SignKey & BMEA(Dots(I), key.KeyString)
-        If Len(key.SignKey) > 64 Then key.SignKey = md5.Md5_String_Calc(key.SignKey)
+        Key.SignDots(I) = Dots(I)
+        If I Mod __(2)__ = 0 Then LogW "正在转写签名的第" & I & "个顶点：" & Dots(I) & "(总计" & UBound(Dots) & "个顶点)..."
+        Key.SignKey = Key.SignKey & BMEA(Dots(I), Key.KeyString)
+        If Len(Key.SignKey) > 64 Then Key.SignKey = md5.Md5_String_Calc(Key.SignKey)
     Next
     
     LogW "正在合并签名..."
-    key.SignKey = md5.Md5_String_Calc(key.Owner & " signed " & key.SignKey & " (" & UBound(Dots) & ")")
-    LogW "成功：" & key.SignKey
+    Key.SignKey = md5.Md5_String_Calc(Key.Owner & " signed " & Key.SignKey & " (" & UBound(Dots) & ")")
+    LogW "成功：" & Key.SignKey
     
     LogW "导出密钥->""" & DriveS & "dogtools-v2-key.dt2k"""
     If Dir(DriveS & "dogtools-v2-key.dt2k") <> "" Then Kill DriveS & "dogtools-v2-key.dt2k"
     Open DriveS & "dogtools-v2-key.dt2k" For Binary As #1
-    Put #1, , key
+    Put #1, , Key
     Close #1
     
     LogW "授权成功。"
@@ -216,31 +216,31 @@ Private Sub Confirm_Click()
     LogW "设备特征：" & Size & "," & Serial & "," & MaxComp & "," & FileFlags & "," & FileName
     LogW ""
     
-    Dim key As SignFile
+    Dim Key As SignFile
     Open DriveS & "dogtools-v2-key.dt2k" For Binary As #1
-    Get #1, , key
+    Get #1, , Key
     Close #1
     
-    LogW "授权信息：" & key.Permission
-    LogW "授权日期：" & key.GenerateTime
-    LogW "密钥持有者：" & key.Owner
+    LogW "授权信息：" & Key.Permission
+    LogW "授权日期：" & Key.GenerateTime
+    LogW "密钥持有者：" & Key.Owner
     
     Dim md5 As New md5, con As Boolean
 
-    con = key.KeyString = md5.Md5_String_Calc("copied with " & key.Owner & " by " & BMEA(Size, key.Permission) & "&&" & BMEA(Serial, key.Permission) & "&&" & BMEA(MaxComp, key.Permission) & "&&" & BMEA(FileFlags, key.Permission) & "&&" & BMEA(FileName, key.Permission))
+    con = Key.KeyString = md5.Md5_String_Calc("copied with " & Key.Owner & " by " & BMEA(Size, Key.Permission) & "&&" & BMEA(Serial, Key.Permission) & "&&" & BMEA(MaxComp, Key.Permission) & "&&" & BMEA(FileFlags, Key.Permission) & "&&" & BMEA(FileName, Key.Permission))
     LogW "设备特征检验：" & IIf(con, "成功", "失败")
     If Not con Then Exit Sub
     
     Dim temp As String, TX As Long
-    For I = 1 To UBound(key.SignDots)
-        TX = Sqr(key.SignDots(I) / 500)
-        SignBox.Circle (TX + I * 10, key.SignDots(I) / 250000 + Sin(I) * SignBox.Height), 100, RGB(255, 255 * (TX / SignBox.Width) * (I / UBound(key.SignDots)), 255 * (ty / SignBox.Height))
-        temp = temp & BMEA(key.SignDots(I), key.KeyString)
-        If Len(temp) > 64 Then temp = md5.Md5_String_Calc(temp)
+    For I = 1 To UBound(Key.SignDots)
+        TX = Sqr(Key.SignDots(I) / 500)
+        SignBox.Circle (TX + I * 10, Key.SignDots(I) / 250000 + Sin(I) * SignBox.Height), 100, RGB(255, 255 * (TX / SignBox.Width) * (I / UBound(Key.SignDots)), 255 * (ty / SignBox.Height))
+        temp = temp & BMEA(Key.SignDots(I), Key.KeyString)
+        If Len(temp) > __(3)__ Then temp = md5.Md5_String_Calc(temp)
         DoEvents
     Next
     
-    con = key.SignKey = md5.Md5_String_Calc(key.Owner & " signed " & temp & " (" & UBound(key.SignDots) & ")")
+    con = Key.SignKey = md5.Md5_String_Calc(Key.Owner & " signed " & temp & " (" & UBound(Key.SignDots) & ")")
     LogW "签名检验：" & IIf(con, "成功", "失败")
     If Not con Then Exit Sub
     
@@ -263,7 +263,7 @@ Private Sub SignBox_MouseMove(Button As Integer, Shift As Integer, X As Single, 
         Dotish = 1
         CopyMemory b1(0), lX, 4: CopyMemory b2(0), lY, 4
         ReDim Preserve b1(7)
-        For I = 4 To 7
+        For I = __(1)__ To 7
             b1(I) = b2(I - 4)
         Next
         For I = 0 To 7
