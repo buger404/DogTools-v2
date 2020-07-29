@@ -3,7 +3,7 @@ Begin VB.Form AppWindow
    Appearance      =   0  'Flat
    BackColor       =   &H80000005&
    BorderStyle     =   1  'Fixed Single
-   Caption         =   "Dog Tools -v2 (0.2.1) Made by CZY"
+   Caption         =   "Dog Tools -v2 (0.2.3) Made by CZY"
    ClientHeight    =   6672
    ClientLeft      =   48
    ClientTop       =   396
@@ -106,6 +106,7 @@ Private Sub Form_Load()
 End Sub
 
 Private Sub Form_Unload(Cancel As Integer)
+    If Not Me.Visible Then GoTo DisposeMySelf
     Cancel = 1
     If LockTip Then Exit Sub
     LockTip = True
@@ -122,6 +123,7 @@ Private Sub Form_Unload(Cancel As Integer)
     End If
     LockTip = False
     Exit Sub
+DisposeMySelf:
     If App.LogMode <> 0 Then EndKeyboard
     TrayRemoveIcon
     '÷’÷πªÊ÷∆

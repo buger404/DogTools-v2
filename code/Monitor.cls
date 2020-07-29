@@ -73,9 +73,9 @@ Public Sub Update()
 
     Log "Monitor", "打开了： " & UnSpace(Ti) & " (" & img & ")。"
     
-    If user <> "" Then Exit Sub
-    
 BreakExe:
+    
+    If user <> "" Then Exit Sub
     
     For I = 1 To UBound(Breaks.List)
         With Breaks.List(I)
@@ -86,7 +86,7 @@ BreakExe:
                 SendMessageA Hwnd, WM_CLOSE, 0, 0 '必杀技！
                 Log "Breaker", "成功阻止：" & .Title & " | " & .ClassName & " | " & .ImName
                 Log "Monitor", "于是该窗口被本工具阻断！"
-                TrayBalloon AppWindow, "Break a target window, unlock for details.", "BREAKER", NIIF_ICON_MASK
+                TrayBalloon AppWindow, "Broke a target window, unlock for details.", "BREAKER", NIIF_ICON_MASK
             End If
         End With
     Next

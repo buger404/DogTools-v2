@@ -25,7 +25,7 @@ Public Sub Update()
     Page.Clear 'Çå¿Õ»­²¼
 
     Page.Writes "breaker", GW / 2, 100, 32, argb(255, 253, 78, 38), align:=StringAlignmentCenter
-    Page.Writes "avoid something that won't be opened", GW / 2, 160, 20, argb(120, 0, 0, 0), align:=StringAlignmentCenter
+    Page.Writes "avoid something that is not expected to be opened", GW / 2, 160, 20, argb(120, 0, 0, 0), align:=StringAlignmentCenter
 
     For I = PI * 5 + 1 To PI * 5 + 5
         If I > UBound(Breaks.List) Then Exit For
