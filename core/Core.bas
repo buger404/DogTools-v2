@@ -2,7 +2,7 @@ Attribute VB_Name = "Core"
 Public MusicList As GMusicList
 Public user As String
 Public Moni As New Monitor
-Public Const DataPath As String = "C:\DogTools"
+Public Const DataPath As String = "D:\Program Files\DogTools"
 Public Type BreakInfo
     ClassName As String
     Title As String
@@ -18,7 +18,7 @@ Public BRI As String, BRT As String, BRC As String
 Sub Log(ByVal func As String, ByVal Text As String)
     On Error Resume Next
     
-    Open "C:\DogTools\Logs\" & func & "\" & year(Now) & "年" & Month(Now) & "月" & Day(Now) & "日   " & Hour(Now) & "时.txt" For Append As #1
+    Open DataPath & "\Logs\" & func & "\" & year(Now) & "年" & Month(Now) & "月" & Day(Now) & "日   " & Hour(Now) & "时.txt" For Append As #1
     Print #1, Now & "    " & Text
     Close #1
     
@@ -94,6 +94,7 @@ Sub Main()
     
 SkipRoot:
     
+    If Dir(DataPath & "\", vbDirectory) = "" Then CreateFolder DataPath & "\"
     If Dir(DataPath & "\Logs\", vbDirectory) = "" Then CreateFolder DataPath & "\Logs\"
     If Dir(DataPath & "\Logs\Breaker\", vbDirectory) = "" Then CreateFolder DataPath & "\Logs\Breaker\"
     If Dir(DataPath & "\Logs\Monitor\", vbDirectory) = "" Then CreateFolder DataPath & "\Logs\Monitor\"

